@@ -13,22 +13,6 @@ class AccountsController < ApplicationController
       format.xrds
     end
   end
-  
-  def new
-    @account = Account.new
-  end
-
-  def create
-    cookies.delete :auth_token
-    @account = Account.new(params[:account])
-    begin
-      @account.save!
-      flash[:notice] = 'Thank you for signing up! We sent you an email containing an activation link.'
-      redirect_to login_path    
-    rescue ActiveRecord::RecordInvalid
-      render :action => 'new'
-    end
-  end
 
   def edit
     @account = current_account

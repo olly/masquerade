@@ -3,13 +3,6 @@ require File.dirname(__FILE__) + '/../test_helper'
 class AccountsControllerTest < ActionController::TestCase
   
   fixtures :accounts
-  
-  def test_should_allow_signup
-    assert_difference 'Account.count' do
-      post :create, :account => valid_account_attributes
-    end  
-    assert_redirected_to login_path
-  end
 
   def test_should_require_login_for_edit
     get :edit
