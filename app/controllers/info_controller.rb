@@ -4,6 +4,9 @@ class InfoController < ApplicationController
   # requests where to find the server endpoint.
   def index
     response.headers['X-XRDS-Location'] = formatted_server_url(:format => :xrds, :protocol => scheme)
+    account = Account.find(:first)
+    flash.keep
+    redirect_to identifier(account)
   end
   
   # This page is to prevent phishing attacks. It should
