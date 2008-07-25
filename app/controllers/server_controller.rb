@@ -191,7 +191,7 @@ class ServerController < ApplicationController
   # http://openid.net/specs/openid-provider-authentication-policy-extension-1_0-01.html#anchor12
   def auth_level
     if APP_CONFIG['use_ssl']
-      current_account.last_authenticated_with_yubikey? ? 3 : 2
+      2
     else
       0
     end
@@ -202,9 +202,7 @@ class ServerController < ApplicationController
   end
   
   def auth_policies
-    current_account.last_authenticated_with_yubikey? ? 
-      [OpenID::PAPE::AUTH_MULTI_FACTOR, OpenID::PAPE::AUTH_PHISHING_RESISTANT] :
-      []
+    []
   end
   
 end
