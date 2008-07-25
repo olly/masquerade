@@ -16,45 +16,17 @@ class Account < ActiveRecord::Base
   validates_confirmation_of :password, :if => :password_required?
   
   before_save   :encrypt_password
-  before_create :make_activation_code
   
   attr_accessible :login, :email, :password, :password_confirmation
   attr_accessor :password
-  
-  class ActivationCodeNotFound < StandardError; end
-  class AlreadyActivated < StandardError
-    attr_reader :user, :message
-    def initialize(account, message=nil)
-      @message, @account = message, account
-    end
-  end
-  
-  # Finds the user with the corresponding activation code, activates their account and returns the user.
-  #
-  # Raises:
-  # [Account::ActivationCodeNotFound] if there is no user with the corresponding activation code
-  # [Account::AlreadyActivated] if the user with the corresponding activation code has already activated their account
-  def self.find_and_activate!(activation_code)
-    raise ArgumentError if activation_code.nil?
-    user = find_by_activation_code(activation_code)
-    raise ActivationCodeNotFound unless user
-    raise AlreadyActivated.new(user) if user.active?
-    user.send(:activate!)
-    user
-  end
+  attr_writer :recently_created
   
   def to_param
     login
   end
   
-  # The existence of an activation code means they have not activated yet
-  def active?
-    activation_code.nil?
-  end
-
-  # True if the user has just been activated
-  def pending?
-    @activated
+  def recently_created?
+    @recently_created
   end
   
   # Does the user have the possibility to authenticate with a one time password?
@@ -65,7 +37,7 @@ class Account < ActiveRecord::Base
   # Authenticates a user by their login name and password.
   # Returns the user or nil.
   def self.authenticate(login, password)
-    if a = find(:first, :conditions => ['login = ? and enabled = ? and activated_at IS NOT NULL', login, true]) # need to get the salt
+    if a = find(:first, :conditions => ['login = ? and enabled = ?', login, true]) # need to get the salt
       if a.authenticated?(password)
         a.last_authenticated_at, a.last_authenticated_with_yubikey = Time.now, a.authenticated_with_yubikey?
         a.save(false)
@@ -177,22 +149,11 @@ class Account < ActiveRecord::Base
     crypted_password.blank? || !password.blank?
   end
   
-  def make_activation_code
-    self.activation_code = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
-  end
-  
   def make_password_reset_code
     self.password_reset_code = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
   end
   
   private
-  
-  def activate!
-    @activated = true
-    self.activated_at = Time.now.utc
-    self.activation_code = nil
-    self.save
-  end
   
   # Returns the first twelve chars from the Yubico OTP,
   # which are used to identify a Yubikey

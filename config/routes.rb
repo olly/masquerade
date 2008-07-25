@@ -1,7 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
 
   map.resource :account,
-    :member => { :activate => :get, :password => :get, :change_password => :put } do |account|
+    :member => {:password => :get, :change_password => :put } do |account|
     account.resources :personas do |personas|
       personas.resources :properties
     end

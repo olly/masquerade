@@ -16,12 +16,6 @@ class AccountMailerTest < ActiveSupport::TestCase
     @expected.set_content_type "text", "plain", { "charset" => CHARSET }
   end
   
-  def test_should_send_signup_notification
-    response = AccountMailer.create_signup_notification(@account)
-    assert_equal @account.email, response.to[0]
-    assert_match @account.activation_code, response.body
-  end
-  
   def test_should_send_forgot_password
     @account.forgot_password!
     response = AccountMailer.create_forgot_password(@account)

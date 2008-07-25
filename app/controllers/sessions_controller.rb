@@ -12,7 +12,7 @@ class SessionsController < ApplicationController
       flash[:notice] = 'You are now logged in.'
       redirect_after_login
     else
-      flash[:error]  = 'The login is incorrect or your account is not activated, yet.'
+      flash[:error]  = 'The login is incorrect.'
       redirect_to :action => 'new'
     end
   end

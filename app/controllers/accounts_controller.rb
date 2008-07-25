@@ -1,6 +1,6 @@
 class AccountsController < ApplicationController
   
-  before_filter :login_required, :except => [:show, :new, :create, :activate]
+  before_filter :login_required, :except => [:show, :new, :create]
   
   def show
     @account = Account.find(:first, :conditions => ['login = ? AND enabled = ?', params[:account], true])
@@ -40,20 +40,6 @@ class AccountsController < ApplicationController
     else
       flash[:error] = 'The entered password is wrong.'
       redirect_to edit_account_path
-    end
-  end
-  
-  def activate
-    begin
-      account = Account.find_and_activate!(params[:id])
-      flash[:notice] = 'Your account is activated - you can login now.'
-      redirect_to login_path
-    rescue ArgumentError, Account::ActivationCodeNotFound
-      flash[:error] = 'We could not find any account with the given activation code. Please create a new account.'
-      redirect_to new_account_path
-    rescue Account::AlreadyActivated
-      flash[:error] = 'Your account is already activated - please login.'
-      redirect_to login_path
     end
   end
   

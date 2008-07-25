@@ -7,11 +7,6 @@ class AccountTest < ActiveSupport::TestCase
     @account = Account.new valid_account_attributes
   end
   
-  def test_should_initialize_activation_code_upon_creation
-    @account.save
-    assert_not_nil @account.reload.activation_code
-  end
-  
   def test_should_require_login
     @account.login = nil
     assert_invalid @account, :login
@@ -71,20 +66,6 @@ class AccountTest < ActiveSupport::TestCase
     @account.password = valid_password
     @account.password_confirmation = valid_password
     assert_valid @account
-  end
-  
-  def test_should_assign_activation_code_on_create
-    @account.save
-    assert_not_nil @account.activation_code
-  end
-  
-  def test_should_find_and_activate_by_activation_token
-    @account.save
-    assert_equal false, @account.active?
-    Account.find_and_activate!(@account.reload.activation_code)
-    @account.reload
-    assert_equal true, @account.active?
-    assert_not_nil @account.activated_at
   end
   
   def test_should_reset_password
