@@ -4,7 +4,7 @@ class AccountMailer < ActionMailer::Base
   
   def forgot_password(account)
     setup_email(account)
-    @subject = 'Your request for a new password'
+    @subject = I18n.translate(:your_request_for_a_new_password)
   end
   
   protected

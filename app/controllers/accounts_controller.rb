@@ -8,7 +8,7 @@ class AccountsController < ApplicationController
     
     respond_to do |format|
       format.html do
-        response.headers['X-XRDS-Location'] = formatted_identity_url(:account => @account, :format => :xrds, :protocol => scheme)
+        response.headers['X-XRDS-Location'] = identity_url(:account => @account, :format => :xrds, :protocol => scheme)
       end
       format.xrds
     end
@@ -21,7 +21,7 @@ class AccountsController < ApplicationController
   def update
     @account = current_account
     if @account.update_attributes(params[:account])
-      flash[:notice] = 'Your profile has been updated.'
+      flash[:notice] = t(:profile_updated)
       redirect_to edit_account_path(:account => current_account)
     else
       render :action => 'edit'
@@ -35,33 +35,33 @@ class AccountsController < ApplicationController
       current_account.forget_me 
       cookies.delete :auth_token
       reset_session
-      flash[:notice] = 'Your account has been disabled.'
+      flash[:notice] = t(:account_disabled)
       redirect_to home_path
     else
-      flash[:error] = 'The entered password is wrong.'
+      flash[:error] = t(:entered_password_is_wrong)
       redirect_to edit_account_path
     end
   end
-  
+
   def change_password
     if Account.authenticate(current_account.login, params[:old_password])
       if ((params[:password] == params[:password_confirmation]) && !params[:password_confirmation].blank?)
         current_account.password_confirmation = params[:password_confirmation]
         current_account.password = params[:password]        
         if current_account.save
-          flash[:notice] = 'Your password has been changed.'
+          flash[:notice] = t(:password_has_been_changed)
           redirect_to edit_account_path(:account => current_account)
         else
-          flash[:error] = 'Sorry, your password could not be changed.'
+          flash[:error] = t(:sorry_password_couldnt_be_changed)
           redirect_to edit_account_path
         end
       else
-        flash[:error] = 'The confirmation of the new password was incorrect.'
+        flash[:error] = t(:confirmation_of_new_password_invalid)
         @old_password = params[:old_password]
         redirect_to edit_account_path
       end
     else
-      flash[:error] = 'Your old password is incorrect.'
+      flash[:error] = t(:old_password_incorrect)
       redirect_to edit_account_path
     end 
   end
