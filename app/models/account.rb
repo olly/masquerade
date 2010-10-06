@@ -53,31 +53,13 @@ class Account < ActiveRecord::Base
   end
   
   def authenticated?(password)
-    if password.length < 50 && !(yubico_identity? && yubikey_mandatory?) 
-      encrypt(password) == crypted_password
-    else
-      password, yubico_otp = Account.split_password_and_yubico_otp(password)
-      encrypt(password) == crypted_password && @authenticated_with_yubikey = yubikey_authenticated?(yubico_otp)
-    end
+    encrypt(password) == crypted_password
   end
   
   # Is the Yubico OTP valid and belongs to this account?
   def yubikey_authenticated?(otp)
     if yubico_identity? && Account.verify_yubico_otp(otp)
       (Account.extract_yubico_identity_from_otp(otp) == yubico_identity)
-    else
-      false
-    end
-  end
-  
-  def authenticated_with_yubikey?
-    @authenticated_with_yubikey || false
-  end
-  
-  def associate_with_yubikey(otp)
-    if Account.verify_yubico_otp(otp)
-      self.yubico_identity = Account.extract_yubico_identity_from_otp(otp)
-      save(false)
     else
       false
     end
